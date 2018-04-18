@@ -16,10 +16,13 @@
 package hello;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GreetingControllerTests {
-
+	
+//	 private static final Logger logger = LogManager.getLogger(GreetingControllerTests.class);
+	 private static final String template = "%s %s!";
     @Autowired
     private MockMvc mockMvc;
 
@@ -45,10 +50,15 @@ public class GreetingControllerTests {
 
     @Test
     public void paramGreetingShouldReturnTailoredMessage() throws Exception {
-
         this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
+                .andExpect(jsonPath(".content").value("Hello, Spring Community!"));
+    }
+    
+    @Test
+    public void shouldCreateGreeting() throws Exception {
+    	this.mockMvc.perform(post("/create").content(new Greeting(1, "Hey World").toString())).andDo(print()).andExpect(status().isOk()).
+    	andExpect(jsonPath(".content", String.format(template, new Greeting(1, "dd").getId(),new Greeting(1, "dd").getId())).value(new Greeting(1, "Hey World")));
     }
 
 }
